@@ -1,66 +1,66 @@
-CREATE TABLE CONF_USER (
-  ID number(11) NOT NULL,
-  USER_CODE varchar2(32) DEFAULT NULL,
-  USER_NAME varchar2(32) NOT NULL,
-  PASSWORD varchar2(32) NOT NULL,
-  DELETE_FLAG number(1) DEFAULT '0',
-  CREATE_TIME date DEFAULT NULL,
-  UPDATE_TIME date DEFAULT NULL
+create table conf_user (
+  id number(11) not null,
+  user_code varchar2(32) default null,
+  user_name varchar2(32) not null,
+  password varchar2(32) not null,
+  delete_flag number(1) default '0',
+  create_time date default null,
+  update_time date default null
 );
-ALTER TABLE CONF_USER ADD CONSTRAINT PRIMARY_CONF_USER PRIMARY KEY (ID);
+alter table conf_user add constraint primary_conf_user primary key (id);
 
-CREATE TABLE CONF_PROJECT (
-  ID number(11) NOT NULL,
-  PROJ_CODE varchar2(32) DEFAULT NULL,
-  PROJ_NAME varchar2(32) DEFAULT NULL,
-  OWNER_ID number(11) DEFAULT NULL,
-  DEVELOPMENT_VERSION number(11) DEFAULT 0  NULL,
-  PRODUCTION_VERSION number(11) DEFAULT 0  NULL,
-  TEST_VERSION number(11) DEFAULT 0  NULL,
-  DELETE_FLAG number(1) DEFAULT '0',
-  CREATE_TIME date DEFAULT NULL,
-  UPDATE_TIME date DEFAULT NULL
+create table conf_project (
+  id number(11) not null,
+  proj_code varchar2(32) default null,
+  proj_name varchar2(32) default null,
+  owner_id number(11) default null,
+  development_version number(11) default 0  null,
+  production_version number(11) default 0  null,
+  test_version number(11) default 0  null,
+  delete_flag number(1) default '0',
+  create_time date default null,
+  update_time date default null
 );
-ALTER TABLE CONF_PROJECT ADD CONSTRAINT PRIMARY_CONF_PROJECT PRIMARY KEY (ID);
+alter table conf_project add constraint primary_conf_project primary key (id);
 
-CREATE TABLE CONF_PROJECT_USER (
-  PROJ_ID number(11) NOT NULL,
-  USER_ID number(11) NOT NULL
+create table conf_project_user (
+  proj_id number(11) not null,
+  user_id number(11) not null
 ) ;
-ALTER TABLE CONF_PROJECT_USER ADD CONSTRAINT PRIMARY_CONF_PROJECT_USER PRIMARY KEY (PROJ_ID,USER_ID);
+alter table conf_project_user add constraint primary_conf_project_user primary key (proj_id,user_id);
 
-CREATE TABLE CONF_PROJECT_MODULE (
-  MODULE_ID number(11) NOT NULL,
-  PROJ_ID number(11) NOT NULL,
-  MODULE_NAME varchar2(32) DEFAULT NULL
+create table conf_project_module (
+  module_id number(11) not null,
+  proj_id number(11) not null,
+  module_name varchar2(32) default null
 ) ;
-ALTER TABLE CONF_PROJECT_MODULE ADD CONSTRAINT PRIMARY_CONF_PROJECT_MODULE PRIMARY KEY (MODULE_ID);
+alter table conf_project_module add constraint primary_conf_project_module primary key (module_id);
 
-CREATE TABLE CONF_PROJECT_USER_ROLE (
-  PROJ_ID number(11) NOT NULL,
-  USER_ID number(11) NOT NULL,
-  ROLE_CODE varchar2(32) NOT NULL
+create table conf_project_user_role (
+  proj_id number(11) not null,
+  user_id number(11) not null,
+  role_code varchar2(32) not null
 ) ;
-ALTER TABLE CONF_PROJECT_USER_ROLE ADD CONSTRAINT PRIMARY_CONF_PROJECT_USER_ROLE PRIMARY KEY (PROJ_ID,USER_ID,ROLE_CODE);
+alter table conf_project_user_role add constraint primary_conf_project_user_role primary key (proj_id,user_id,role_code);
 
-CREATE TABLE CONF_PROJECT_CONFIG (
-  CONFIG_ID number(11) NOT NULL,
-  CONFIG_KEY varchar2(64) NOT NULL,
-  CONFIG_VALUE varchar2(256) NOT NULL,
-  CONFIG_DESC varchar2(256) DEFAULT NULL,
-  PROJECT_ID number(11) NOT NULL,
-  MODULE_ID number(11) NOT NULL,
-  DELETE_FLAG number(1) DEFAULT '0',
-  OPT_USER varchar2(32) DEFAULT NULL,
-  OPT_TIME date DEFAULT NULL,
-  PRODUCTION_VALUE varchar2(256) NOT NULL,
-  PRODUCTION_USER varchar2(32) DEFAULT NULL,
-  PRODUCTION_TIME date DEFAULT NULL,
-  TEST_VALUE varchar2(256) NOT NULL,
-  TEST_USER varchar2(32) DEFAULT NULL,
-  TEST_TIME date DEFAULT NULL,
-  BUILD_VALUE varchar2(256) NOT NULL,
-  BUILD_USER varchar2(32) DEFAULT NULL,
-  BUILD_TIME date DEFAULT NULL
+create table conf_project_config (
+  config_id number(11) not null,
+  config_key varchar2(64) not null,
+  config_value varchar2(256) not null,
+  config_desc varchar2(256) default null,
+  project_id number(11) not null,
+  module_id number(11) not null,
+  delete_flag number(1) default '0',
+  opt_user varchar2(32) default null,
+  opt_time date default null,
+  production_value varchar2(256) not null,
+  production_user varchar2(32) default null,
+  production_time date default null,
+  test_value varchar2(256) not null,
+  test_user varchar2(32) default null,
+  test_time date default null,
+  build_value varchar2(256) not null,
+  build_user varchar2(32) default null,
+  build_time date default null
 ) ;
-ALTER TABLE CONF_PROJECT_CONFIG ADD CONSTRAINT PRIMARY_CONF_PROJECT_CONFIG PRIMARY KEY (CONFIG_ID);
+alter table conf_project_config add constraint primary_conf_project_config primary key (config_id);

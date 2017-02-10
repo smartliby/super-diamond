@@ -21,20 +21,20 @@ public class ModuleService {
 	private JdbcTemplate jdbcTemplate;
 	
 	public List<Map<String, Object>> queryModules(long projectId) {
-        String sql = "SELECT * FROM conf_project_module a WHERE a.PROJ_ID = ? order by a.MODULE_ID";
+        String sql = "SELECT * FROM conf_project_module a WHERE a.proj_id = ? order by a.module_id";
 		return jdbcTemplate.queryForList(sql, projectId);
 	}
 	
 	@Transactional
 	public long save(Long projectId, String name) {
-        String sql = "SELECT MAX(MODULE_ID)+1 FROM conf_project_module";
+        String sql = "SELECT MAX(module_id)+1 FROM conf_project_module";
         long id = 1;
 		try {
 			id = jdbcTemplate.queryForObject(sql, Long.class);
 		} catch(NullPointerException e) {
 			;
 		}
-		sql = "INSERT INTO conf_project_module(MODULE_ID, PROJ_ID, MODULE_NAME) values(?, ?, ?)";
+		sql = "INSERT INTO conf_project_module(module_id, proj_id, module_name) values(?, ?, ?)";
 		jdbcTemplate.update(sql, id, projectId, name);
 		return id;
 	}
@@ -46,7 +46,7 @@ public class ModuleService {
 	
 	@Transactional
 	public boolean delete(long moduleId, long projectId) {
-		String sql = "select count(*) from conf_project_config where MODULE_ID = ? and PROJECT_ID = ?";
+		String sql = "select count(*) from conf_project_config where module_id = ? and project_id = ?";
 		
 		int count = jdbcTemplate.queryForObject(sql, Integer.class, moduleId, projectId);
 		if(count == 0) {

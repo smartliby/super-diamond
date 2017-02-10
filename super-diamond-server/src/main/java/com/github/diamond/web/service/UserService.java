@@ -31,8 +31,8 @@ public class UserService {
 		String md5Passwd = MD5.getInstance().getMD5String(password);
 
 		try {
-			String sql = "SELECT ID, USER_NAME, PASSWORD, DELETE_FLAG " +
-					"FROM CONF_USER WHERE USER_CODE = ?";
+			String sql = "SELECT id, user_name, password, delete_flag " +
+					"FROM conf_user WHERE user_code = ?";
 			User user = jdbcTemplate.query(sql, new UserResultSetExtractor(), userCode);
 			
 			if(md5Passwd.equals(user.getPassword())) {
@@ -48,21 +48,21 @@ public class UserService {
 	}
 	
 	public List<User> queryUsers(int offset, int limit) {
-		String sql = "SELECT ID, USER_CODE, USER_NAME " +
-				"FROM CONF_USER WHERE DELETE_FLAG = 0 order by ID limit ?,?";
+		String sql = "SELECT id, user_code, user_name " +
+				"FROM conf_user WHERE delete_flag = 0 order by id limit ?,?";
 		return jdbcTemplate.query(sql, new UserRowMapper(), offset, limit);
 	}
 	
 	public long queryUserCount() {
-		String sql = "SELECT count(*) FROM CONF_USER WHERE DELETE_FLAG = 0";
+		String sql = "SELECT count(*) FROM conf_user WHERE delete_flag = 0";
 		return jdbcTemplate.queryForObject(sql, Long.class);
 	}
 	
 	@Transactional
 	public void saveUser(User user) {
-        String sql = "SELECT MAX(id)+1 FROM CONF_USER";
+        String sql = "SELECT MAX(id)+1 FROM conf_user";
         long id = jdbcTemplate.queryForObject(sql, Long.class);
-		sql = "insert into CONF_USER (ID, USER_CODE, USER_NAME, PASSWORD, CREATE_TIME) " +
+		sql = "insert into conf_user (id, user_code, user_name, password, create_time) " +
 				"values (?, ?, ?, ?, ?)";
 		
 		jdbcTemplate.update(sql, id, user.getUserCode(), user.getUserName(), user.getPassword(), new Date());
@@ -70,13 +70,13 @@ public class UserService {
 	
 	@Transactional
 	public void deleteUser(long id) {
-		String sql = "update CONF_USER set DELETE_FLAG = 1 where id = ?";
+		String sql = "update conf_user set delete_flag = 1 where id = ?";
 		jdbcTemplate.update(sql, id);
 	}
 	
 	@Transactional
 	public void updatePassword(long id, String password) {
-		String sql = "update CONF_USER set password = ? where id = ?";
+		String sql = "update conf_user set password = ? where id = ?";
 		jdbcTemplate.update(sql, password, id);
 	}
 	

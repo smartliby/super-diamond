@@ -30,13 +30,13 @@ public class ConfigService {
 	
 	public List<Map<String, Object>> queryConfigs(Long projectId, Long moduleId, int offset, int limit) {
 		String sql = "SELECT * FROM conf_project_config a, conf_project_module b "
-				+ "WHERE a.MODULE_ID = b.MODULE_ID AND a.DELETE_FLAG =0 AND a.PROJECT_ID=? ";
+				+ "WHERE a.module_id = b.module_id AND a.delete_flag =0 AND a.project_id=? ";
 		
 		if(moduleId != null) {
-			sql = sql + " AND a.MODULE_ID = ? order by a.MODULE_ID limit ?,?";
+			sql = sql + " AND a.module_id = ? order by a.module_id limit ?,?";
 			return jdbcTemplate.queryForList(sql, projectId, moduleId, offset, limit);
 		} else {
-			sql = sql + " order by a.MODULE_ID limit ?,?";
+			sql = sql + " order by a.module_id limit ?,?";
 			return jdbcTemplate.queryForList(sql, projectId, offset, limit);
 		}
 		
@@ -44,13 +44,13 @@ public class ConfigService {
 	
 	public long queryConfigCount(Long projectId, Long moduleId) {
 		String sql = "SELECT count(*) FROM conf_project_config a, conf_project_module b "
-				+ "WHERE a.MODULE_ID = b.MODULE_ID AND a.DELETE_FLAG =0 AND a.PROJECT_ID=? ";
+				+ "WHERE a.module_id = b.module_id AND a.delete_flag =0 AND a.project_id=? ";
 		
 		if(moduleId != null) {
-			sql = sql + " AND a.MODULE_ID = ? order by a.MODULE_ID";
+			sql = sql + " AND a.module_id = ? order by a.module_id";
 			return jdbcTemplate.queryForObject(sql, Long.class, projectId, moduleId);
 		} else {
-			sql = sql + " order by a.MODULE_ID";
+			sql = sql + " order by a.module_id";
 			return jdbcTemplate.queryForObject(sql, Long.class, projectId);
 		}
 		
@@ -58,7 +58,7 @@ public class ConfigService {
 	
 	public String queryConfigs(String projectCode, String type, String format) {
 		String sql = "SELECT * FROM conf_project_config a, conf_project_module b, conf_project c " +
-				"WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=?";
+				"WHERE a.module_id = b.module_id AND a.project_id=c.id AND a.delete_flag =0 AND c.proj_code=?";
 		List<Map<String, Object>> configs = jdbcTemplate.queryForList(sql, projectCode);
 		if("php".equals(format)) {
 			return viewConfigPhp(configs, type);
@@ -70,8 +70,8 @@ public class ConfigService {
 	
 	public String queryConfigs(String projectCode, String[] modules, String type, String format) {
 		String sql = "SELECT * FROM conf_project_config a, conf_project_module b, conf_project c " +
-				"WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=? "
-				+ "AND b.MODULE_NAME in ('" + StringUtils.join(modules, "','") + "')";
+				"WHERE a.module_id = b.module_id AND a.project_id=c.id AND a.delete_flag =0 AND c.proj_code=? "
+				+ "AND b.module_name in ('" + StringUtils.join(modules, "','") + "')";
 		
 		List<Map<String, Object>> configs = jdbcTemplate.queryForList(sql, projectCode);
 		if("php".equals(format)) {
@@ -84,24 +84,24 @@ public class ConfigService {
 	
 	public String queryValue(String projectCode, String module, String key, String type) {
 		String sql = "SELECT * FROM conf_project_config a, conf_project_module b, conf_project c " +
-				"WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=? "
-				+ "AND b.MODULE_NAME=? AND a.CONFIG_KEY=?";
+				"WHERE a.module_id = b.module_id AND a.project_id=c.id AND a.delete_flag =0 AND c.proj_code=? "
+				+ "AND b.module_name=? AND a.config_key=?";
 		Map<String, Object> config = jdbcTemplate.queryForMap(sql, projectCode, module, key);
 		if("development".equals(type)) {
-			return (String)config.get("CONFIG_VALUE");
+			return (String)config.get("config_value");
 		} else if("production".equals(type)) {
-			return (String)config.get("PRODUCTION_VALUE");
+			return (String)config.get("production_value");
 		} else if("test".equals(type)) {
-			return (String)config.get("TEST_VALUE");
+			return (String)config.get("test_value");
 		} else if("build".equals(type)) {
-			return (String)config.get("BUILD_VALUE");
+			return (String)config.get("build_value");
 		} else
 			return "";
 	}
 	
 	@Transactional
 	public void insertConfig(String configKey, String configValue, String configDesc, Long projectId, Long moduleId, String user) {
-        String sql = "SELECT MAX(CONFIG_ID)+1 FROM conf_project_config";
+        String sql = "SELECT MAX(config_id)+1 FROM conf_project_config";
         long id = 1;
 		try {
 			id = jdbcTemplate.queryForObject(sql, Long.class);
@@ -109,8 +109,8 @@ public class ConfigService {
 			;
 		}
 
-        sql = "INSERT INTO conf_project_config(CONFIG_ID,CONFIG_KEY,CONFIG_VALUE,CONFIG_DESC,PROJECT_ID,MODULE_ID,DELETE_FLAG,OPT_USER,OPT_TIME," +
-				"PRODUCTION_VALUE,PRODUCTION_USER,PRODUCTION_TIME,TEST_VALUE,TEST_USER,TEST_TIME,BUILD_VALUE,BUILD_USER,BUILD_TIME) "
+        sql = "INSERT INTO conf_project_config(config_id,config_key,config_value,config_desc,project_id,module_id,delete_flag,opt_user,opt_time," +
+				"production_value,production_user,production_time,test_value,test_user,test_time,build_value,build_user,build_time) "
 				+ "VALUES (?,?,?,?,?,?,0,?,?,?,?,?,?,?,?,?,?,?)";
 		Date time = new Date();
 		jdbcTemplate.update(sql, id, configKey, configValue, configDesc, projectId, moduleId, user, time,
@@ -122,26 +122,26 @@ public class ConfigService {
 	@Transactional
 	public void updateConfig(String type, Long configId, String configKey, String configValue, String configDesc, Long projectId, Long moduleId, String user) {
 		if("development".equals(type)) {
-			String sql = "update conf_project_config set CONFIG_KEY=?,CONFIG_VALUE=?,CONFIG_DESC=?,PROJECT_ID=?,MODULE_ID=?,OPT_USER=?,OPT_TIME=? where CONFIG_ID=?";
+			String sql = "update conf_project_config set config_key=?,config_value=?,config_desc=?,project_id=?,module_id=?,opt_user=?,opt_time=? where config_id=?";
 			jdbcTemplate.update(sql, configKey, configValue, configDesc, projectId, moduleId, user, new Date(), configId);
 			projectService.updateVersion(projectId, type);
 		} else if("production".equals(type)) {
-			String sql = "update conf_project_config set CONFIG_KEY=?,PRODUCTION_VALUE=?,CONFIG_DESC=?,PROJECT_ID=?,MODULE_ID=?,PRODUCTION_USER=?,PRODUCTION_TIME=? where CONFIG_ID=?";
+			String sql = "update conf_project_config set config_key=?,production_value=?,config_desc=?,project_id=?,module_id=?,production_user=?,production_time=? where config_id=?";
 			jdbcTemplate.update(sql, configKey, configValue, configDesc, projectId, moduleId, user, new Date(), configId);
 			projectService.updateVersion(projectId, type);
 		} else if("test".equals(type)) {
-			String sql = "update conf_project_config set CONFIG_KEY=?,TEST_VALUE=?,CONFIG_DESC=?,PROJECT_ID=?,MODULE_ID=?,TEST_USER=?,TEST_TIME=? where CONFIG_ID=?";
+			String sql = "update conf_project_config set config_key=?,test_value=?,config_desc=?,project_id=?,module_id=?,test_user=?,test_time=? where config_id=?";
 			jdbcTemplate.update(sql, configKey, configValue, configDesc, projectId, moduleId, user, new Date(), configId);
 			projectService.updateVersion(projectId, type);
 		} else if("build".equals(type)) {
-			String sql = "update conf_project_config set CONFIG_KEY=?,BUILD_VALUE=?,CONFIG_DESC=?,PROJECT_ID=?,MODULE_ID=?,BUILD_USER=?,BUILD_TIME=? where CONFIG_ID=?";
+			String sql = "update conf_project_config set config_key=?,build_value=?,config_desc=?,project_id=?,module_id=?,build_user=?,build_time=? where config_id=?";
 			jdbcTemplate.update(sql, configKey, configValue, configDesc, projectId, moduleId, user, new Date(), configId);
 			projectService.updateVersion(projectId, type);
 		}
 	}
 	
 	public void deleteConfig(Long id, Long projectId) {
-		String sql = "update conf_project_config set DELETE_FLAG=1 where CONFIG_ID=?";
+		String sql = "update conf_project_config set delete_flag=1 where config_id=?";
 		jdbcTemplate.update(sql, id);
 		projectService.updateVersion(projectId);
 	}
@@ -153,31 +153,31 @@ public class ConfigService {
 		for(Map<String, Object> map : configs) {
 			if(versionFlag) {
 				if("development".equals(type)) {
-					message += "#version = " + map.get("DEVELOPMENT_VERSION") + "\r\n";
+					message += "#version = " + map.get("development_version") + "\r\n";
 				} else if("production".equals(type)) {
-					message += "#version = " + map.get("PRODUCTION_VERSION") + "\r\n";
+					message += "#version = " + map.get("production_version") + "\r\n";
 				} else if("test".equals(type)) {
-					message += "#version = " + map.get("TEST_VERSION") + "\r\n";
+					message += "#version = " + map.get("test_version") + "\r\n";
 				} else if("build".equals(type)) {
-					message += "#version = " + map.get("BUILD_VERSION") + "\r\n";
+					message += "#version = " + map.get("build_version") + "\r\n";
 				}
 				
 				versionFlag = false;
 			}
 			
-			String desc = (String)map.get("CONFIG_DESC");
+			String desc = (String)map.get("config_desc");
 			desc = desc.replaceAll("\r\n", " ");
 			if(StringUtils.isNotBlank(desc))
 				message += "#" + desc + "\r\n";
 			
 			if("development".equals(type)) {
-				message += map.get("CONFIG_KEY") + " = " + map.get("CONFIG_VALUE") + "\r\n";
+				message += map.get("config_key") + " = " + map.get("config_value") + "\r\n";
 			} else if("production".equals(type)) {
-				message += map.get("CONFIG_KEY") + " = " + map.get("PRODUCTION_VALUE") + "\r\n";
+				message += map.get("config_key") + " = " + map.get("production_value") + "\r\n";
 			} else if("test".equals(type)) {
-				message += map.get("CONFIG_KEY") + " = " + map.get("TEST_VALUE") + "\r\n";
+				message += map.get("config_key") + " = " + map.get("test_value") + "\r\n";
 			} else if("build".equals(type)) {
-				message += map.get("CONFIG_KEY") + " = " + map.get("BUILD_VALUE") + "\r\n";
+				message += map.get("config_key") + " = " + map.get("build_value") + "\r\n";
 			}
 		}
 		
@@ -193,30 +193,30 @@ public class ConfigService {
 		for(Map<String, Object> map : configs) {
 			if(versionFlag) {
 				if("development".equals(type)) {
-					message += "\t//version = " + map.get("DEVELOPMENT_VERSION") + "\r\n";
+					message += "\t//version = " + map.get("development_version") + "\r\n";
 				} else if("production".equals(type)) {
-					message += "\t//version = " + map.get("PRODUCTION_VERSION") + "\r\n";
+					message += "\t//version = " + map.get("production_version") + "\r\n";
 				} else if("test".equals(type)) {
-					message += "\t//version = " + map.get("TEST_VERSION") + "\r\n";
+					message += "\t//version = " + map.get("test_version") + "\r\n";
 				} else if("build".equals(type)) {
-					message += "\t//version = " + map.get("BUILD_VALUE") + "\r\n";
+					message += "\t//version = " + map.get("build_value") + "\r\n";
 				}
 				
 				versionFlag = false;
 			}
 			
-			String desc = (String)map.get("CONFIG_DESC");
+			String desc = (String)map.get("config_desc");
 			if(StringUtils.isNotBlank(desc))
 				message += "\t//" + desc + "\r\n";
 			
 			if("development".equals(type)) {
-				message += "\t'" + map.get("CONFIG_KEY") + "' => " + convertType(map.get("CONFIG_VALUE"));
+				message += "\t'" + map.get("config_key") + "' => " + convertType(map.get("config_value"));
 			} else if("production".equals(type)) {
-				message += "\t'" + map.get("CONFIG_KEY") + "' => " + convertType(map.get("PRODUCTION_VALUE"));
+				message += "\t'" + map.get("config_key") + "' => " + convertType(map.get("production_value"));
 			} else if("test".equals(type)) {
-				message += "\t'" + map.get("CONFIG_KEY") + "' => " + convertType(map.get("TEST_VALUE"));
+				message += "\t'" + map.get("config_key") + "' => " + convertType(map.get("test_value"));
 			} else if("build".equals(type)) {
-				message += "\t'" + map.get("CONFIG_KEY") + "' => " + convertType(map.get("BUILD_VALUE"));
+				message += "\t'" + map.get("config_key") + "' => " + convertType(map.get("build_value"));
 			}
 		}
 
@@ -231,26 +231,26 @@ public class ConfigService {
 		for(Map<String, Object> map : configs) {
 			if(versionFlag) {
 				if("development".equals(type)) {
-					confMap.put("version", map.get("DEVELOPMENT_VERSION"));
+					confMap.put("version", map.get("development_version"));
 				} else if("production".equals(type)) {
-					confMap.put("version", map.get("PRODUCTION_VERSION"));
+					confMap.put("version", map.get("production_version"));
 				} else if("test".equals(type)) {
-					confMap.put("version", map.get("TEST_VERSION"));
+					confMap.put("version", map.get("test_version"));
 				} else if("build".equals(type)) {
-					confMap.put("version", map.get("BUILD_VALUE"));
+					confMap.put("version", map.get("build_value"));
 				}
 				
 				versionFlag = false;
 			}
 			
 			if("development".equals(type)) {
-				confMap.put(map.get("CONFIG_KEY").toString(), map.get("CONFIG_VALUE"));
+				confMap.put(map.get("config_key").toString(), map.get("config_value"));
 			} else if("production".equals(type)) {
-				confMap.put(map.get("CONFIG_KEY").toString(), map.get("PRODUCTION_VALUE"));
+				confMap.put(map.get("config_key").toString(), map.get("production_value"));
 			} else if("test".equals(type)) {
-				confMap.put(map.get("CONFIG_KEY").toString(), map.get("TEST_VALUE"));
+				confMap.put(map.get("config_key").toString(), map.get("test_value"));
 			} else if("build".equals(type)) {
-				confMap.put(map.get("CONFIG_KEY").toString(), map.get("BUILD_VALUE"));
+				confMap.put(map.get("config_key").toString(), map.get("build_value"));
 			}
 		}
 		

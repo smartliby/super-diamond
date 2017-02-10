@@ -67,7 +67,7 @@ public class ConfigController extends BaseController {
 			configService.updateConfig(type, configId, configKey, configValue, configDesc, projectId, moduleId, user.getUserCode());
 		}
 
-		String projCode = (String)projectService.queryProject(projectId).get("PROJ_CODE");
+		String projCode = (String)projectService.queryProject(projectId).get("proj_code");
 		String moduleName = moduleService.findName(moduleId);
 		diamondServerHandler.pushConfig(projCode, type, moduleName);
 		if(selModuleId != null)
@@ -80,7 +80,7 @@ public class ConfigController extends BaseController {
 	public String deleteConfig(String type, Long projectId, String moduleName, @PathVariable Long id) {
 		configService.deleteConfig(id, projectId);
 		
-		String projCode = (String)projectService.queryProject(projectId).get("PROJ_CODE");
+		String projCode = (String)projectService.queryProject(projectId).get("proj_code");
 		diamondServerHandler.pushConfig(projCode, type, moduleName);
 		return "redirect:/profile/" + type + "/" + projectId;
 	}
