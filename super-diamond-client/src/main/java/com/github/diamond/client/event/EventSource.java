@@ -1,12 +1,15 @@
-/**        
- * Copyright (c) 2013 by 苏州科大国创信息技术有限公司.    
+/**
+ * Copyright (c) 2013 by 苏州科大国创信息技术有限公司.
  */
+
 package com.github.diamond.client.event;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -15,79 +18,116 @@ import com.github.diamond.client.util.NamedThreadFactory;
 
 /**
  * Create on @2013-8-28 @下午9:25:08
- * 
+ *
  * @author bsli@ustcinfo.com
  */
 public class EventSource {
-	private Collection<ConfigurationListener> listeners;
-	
-	private ExecutorService executorService = 
-			Executors.newSingleThreadExecutor(new NamedThreadFactory("config-event"));
+    private Collection<ConfigurationListener> listeners;
 
-	public EventSource() {
-		initListeners();
-	}
+    private Collection<ConfigurationLoadAlListener> loadAlListeners;
 
-	public void addConfigurationListener(ConfigurationListener l) {
-		checkListener(l);
-		listeners.add(l);
-	}
+    private ExecutorService executorService =
+        Executors.newSingleThreadExecutor(new NamedThreadFactory("config-event"));
 
-	public boolean removeConfigurationListener(ConfigurationListener l) {
-		return listeners.remove(l);
-	}
+    public EventSource() {
+        initListeners();
+    }
 
-	public Collection<ConfigurationListener> getConfigurationListeners() {
-		return Collections
-				.unmodifiableCollection(new ArrayList<ConfigurationListener>(
-						listeners));
-	}
+    public void addConfigurationListener(ConfigurationListener l) {
+        checkListener(l);
+        listeners.add(l);
+    }
 
-	public void clearConfigurationListeners() {
-		listeners.clear();
-	}
+    public boolean removeConfigurationListener(ConfigurationListener l) {
+        return listeners.remove(l);
+    }
 
-	/**
-	 * 异步执行ConfigurationListener。
-	 * 
-	 * @param type
-	 * @param propName
-	 * @param propValue
-	 */
-	protected void fireEvent(EventType type, String propName, Object propValue) {
-		final Iterator<ConfigurationListener> it = listeners.iterator();
-		if (it.hasNext()) {
-			final ConfigurationEvent event = createEvent(type, propName, propValue);
-			while (it.hasNext()) {
-				executorService.submit(new Runnable() {
-					
-					@Override
-					public void run() {
-						it.next().configurationChanged(event);
-					}
-				});
-			}
-		}
-	}
+    public Collection<ConfigurationListener> getConfigurationListeners() {
+        return Collections
+            .unmodifiableCollection(new ArrayList<ConfigurationListener>(
+                listeners));
+    }
 
-	protected ConfigurationEvent createEvent(EventType type, String propName, Object propValue) {
-		return new ConfigurationEvent(this, type, propName, propValue);
-	}
+    public void clearConfigurationListeners() {
+        listeners.clear();
+    }
 
-	@Override
-	protected Object clone() throws CloneNotSupportedException {
-		EventSource copy = (EventSource) super.clone();
-		copy.initListeners();
-		return copy;
-	}
+    public void addConfigurationLoadAllListener(ConfigurationLoadAlListener l) {
+        checkListener(l);
+        loadAlListeners.add(l);
+    }
 
-	private static void checkListener(Object l) {
-		if (l == null) {
-			throw new IllegalArgumentException("Listener must not be null!");
-		}
-	}
+    public boolean removeConfigurationLoadAllListener(ConfigurationLoadAlListener l) {
+        return loadAlListeners.remove(l);
+    }
 
-	private void initListeners() {
-		listeners = new CopyOnWriteArrayList<ConfigurationListener>();
-	}
+    public Collection<ConfigurationLoadAlListener> getConfigurationLoadAllListeners() {
+        return Collections
+            .unmodifiableCollection(new ArrayList<ConfigurationLoadAlListener>(
+                loadAlListeners));
+    }
+
+    public void clearConfigurationLoadAllListeners() {
+        loadAlListeners.clear();
+    }
+
+    /**
+     * 异步执行ConfigurationListener。
+     *
+     * @param type
+     * @param propName
+     * @param propValue
+     */
+    protected void fireEvent(EventType type, String propName, Object propValue) {
+        final Iterator<ConfigurationListener> it = listeners.iterator();
+        if (it.hasNext()) {
+            final ConfigurationEvent event = createEvent(type, propName, propValue);
+            while (it.hasNext()) {
+                executorService.submit(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        it.next().configurationChanged(event);
+                    }
+                });
+            }
+        }
+    }
+
+    protected void loadNewDataSource(final Map<String, String> newDataSource) {
+        final Map<String, String> dataMap = new HashMap<>(newDataSource);
+
+        final Iterator<ConfigurationLoadAlListener> it = loadAlListeners.iterator();
+        if (it.hasNext()) {
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    it.next().loadAll(dataMap);
+                }
+            });
+        }
+
+    }
+
+    protected ConfigurationEvent createEvent(EventType type, String propName, Object propValue) {
+        return new ConfigurationEvent(this, type, propName, propValue);
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        EventSource copy = (EventSource) super.clone();
+        copy.initListeners();
+        return copy;
+    }
+
+    private static void checkListener(Object l) {
+        if (l == null) {
+            throw new IllegalArgumentException("Listener must not be null!");
+        }
+    }
+
+    private void initListeners() {
+        listeners = new CopyOnWriteArrayList<ConfigurationListener>();
+        loadAlListeners = new CopyOnWriteArrayList<ConfigurationLoadAlListener>();
+    }
 }
