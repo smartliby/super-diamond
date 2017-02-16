@@ -4,26 +4,6 @@
 
 package com.github.diamond.client;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.text.StrLookup;
-import org.apache.commons.lang.text.StrSubstitutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.Assert;
-
 import com.github.diamond.client.config.ConfigurationInterpolator;
 import com.github.diamond.client.config.PropertiesReader;
 import com.github.diamond.client.config.PropertyConverter;
@@ -33,6 +13,24 @@ import com.github.diamond.client.netty.ClientChannelInitializer;
 import com.github.diamond.client.netty.Netty4Client;
 import com.github.diamond.client.util.FileUtils;
 import com.github.diamond.client.util.NamedThreadFactory;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.text.StrLookup;
+import org.apache.commons.lang.text.StrSubstitutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Create on @2013-8-25 @下午1:17:38
@@ -67,9 +65,6 @@ public class PropertiesConfiguration extends EventSource {
 
     /**
      * 从jvm参数中获取 projCode、profile、host和port值
-     *
-     * @param projCode
-     * @param profile
      */
     public PropertiesConfiguration() {
         _host = getHost();
@@ -258,9 +253,9 @@ public class PropertiesConfiguration extends EventSource {
             store.clear();
 
         store = tmpStore;
-        if (reload) {
-            loadNewDataSource(store);
-        }
+
+        loadNewDataSource(store);
+
     }
 
     public static String getProjCode() {
