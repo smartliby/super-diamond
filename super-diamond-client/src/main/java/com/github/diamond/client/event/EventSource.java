@@ -24,7 +24,7 @@ import com.github.diamond.client.util.NamedThreadFactory;
 public class EventSource {
     private Collection<ConfigurationListener> listeners;
 
-    private Collection<ConfigurationLoadAlListener> loadAlListeners;
+    private Collection<ConfigurationLoadAllListener> loadAlListeners;
 
     private ExecutorService executorService =
         Executors.newSingleThreadExecutor(new NamedThreadFactory("config-event"));
@@ -52,18 +52,18 @@ public class EventSource {
         listeners.clear();
     }
 
-    public void addConfigurationLoadAllListener(ConfigurationLoadAlListener l) {
+    public void addConfigurationLoadAllListener(ConfigurationLoadAllListener l) {
         checkListener(l);
         loadAlListeners.add(l);
     }
 
-    public boolean removeConfigurationLoadAllListener(ConfigurationLoadAlListener l) {
+    public boolean removeConfigurationLoadAllListener(ConfigurationLoadAllListener l) {
         return loadAlListeners.remove(l);
     }
 
-    public Collection<ConfigurationLoadAlListener> getConfigurationLoadAllListeners() {
+    public Collection<ConfigurationLoadAllListener> getConfigurationLoadAllListeners() {
         return Collections
-            .unmodifiableCollection(new ArrayList<ConfigurationLoadAlListener>(
+            .unmodifiableCollection(new ArrayList<ConfigurationLoadAllListener>(
                 loadAlListeners));
     }
 
@@ -97,7 +97,7 @@ public class EventSource {
     protected void loadNewDataSource(final Map<String, String> newDataSource) {
         final Map<String, String> dataMap = new HashMap<>(newDataSource);
 
-        final Iterator<ConfigurationLoadAlListener> it = loadAlListeners.iterator();
+        final Iterator<ConfigurationLoadAllListener> it = loadAlListeners.iterator();
         if (it.hasNext()) {
             executorService.submit(new Runnable() {
                 @Override
@@ -128,6 +128,6 @@ public class EventSource {
 
     private void initListeners() {
         listeners = new CopyOnWriteArrayList<ConfigurationListener>();
-        loadAlListeners = new CopyOnWriteArrayList<ConfigurationLoadAlListener>();
+        loadAlListeners = new CopyOnWriteArrayList<ConfigurationLoadAllListener>();
     }
 }
