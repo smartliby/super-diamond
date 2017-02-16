@@ -217,6 +217,7 @@ public class PropertiesConfiguration extends EventSource {
      *
      * @param in
      * @param reload 初次初始化加载为false，服务端推送加载为true。
+     *
      * @throws Exception
      */
     public void load(Reader in, boolean reload) throws ConfigurationRuntimeException {
@@ -257,9 +258,9 @@ public class PropertiesConfiguration extends EventSource {
             store.clear();
 
         store = tmpStore;
-
-        loadNewDataSource(store);
-
+        if (reload) {
+            loadNewDataSource(store);
+        }
     }
 
     public static String getProjCode() {
