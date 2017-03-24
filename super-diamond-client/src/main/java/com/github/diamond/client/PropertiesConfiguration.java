@@ -156,7 +156,6 @@ public class PropertiesConfiguration extends EventSource {
                         String versionStr = message.substring(0, message.indexOf("\r\n"));
                         LOGGER.info("从服务器端获取配置信息为空，Client 请求信息为：{},加载本地备份配置信息，项目编码：{}，Profile：{}, Version：{}", clientMsg, projCode, profile, versionStr.split(" = ")[1]);
                         load(new StringReader(message), false);
-                        LOGGER.info("从服务器端获取配置信息为空，Client 请求信息为：" + clientMsg);
                     } else
                         throw new ConfigurationRuntimeException("本地没有备份配置数据，PropertiesConfiguration 初始化失败。");
 
